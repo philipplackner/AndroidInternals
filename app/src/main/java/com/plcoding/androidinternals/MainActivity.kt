@@ -14,9 +14,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.plcoding.androidinternals.ui.theme.AndroidInternalsTheme
 
 class MainActivity : ComponentActivity() {
+
+    private var counter = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val string = helloWorld()
+
         setContent {
             AndroidInternalsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -27,6 +33,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun helloWorld(): String {
+        var count = 0
+
+        return "Hello world!"
     }
 }
 
