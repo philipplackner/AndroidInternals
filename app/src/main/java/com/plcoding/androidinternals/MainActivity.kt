@@ -14,34 +14,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.plcoding.androidinternals.ui.theme.AndroidInternalsTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val musicController by lazy {
+        (application as MusicApplication).musicServiceController
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AndroidInternalsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                    MusicControlsUi(
+                        controller = musicController,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AndroidInternalsTheme {
-        Greeting("Android")
     }
 }
