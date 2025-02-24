@@ -42,14 +42,14 @@ fun MusicControlsUi(
     ) {
         if(isConnected) {
             Text(
-                text = "Connected",
+                text = "App A: Connected",
                 color = green,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         } else {
             Text(
-                text = "Disconnected",
+                text = "App A: Disconnected",
                 color = Color.Red,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.TopCenter)

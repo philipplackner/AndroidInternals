@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <permission android:name="com.plcoding.BIND_TO_MUSIC_SERVICE" />
+
     <application
         android:name=".MusicApplication"
         android:allowBackup="true"
@@ -24,7 +26,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".MusicService" />
+        <service
+            android:name=".MusicService"
+            android:exported="true"
+            android:permission="com.plcoding.BIND_TO_MUSIC_SERVICE">
+            <intent-filter>
+                <action android:name="com.plcoding.BIND_TO_MUSIC_SERVICE" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

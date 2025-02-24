@@ -6,7 +6,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.os.Message
+import android.os.Messenger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,39 +22,40 @@ import kotlinx.coroutines.flow.stateIn
 
 class MusicServiceController(
     private val context: Context,
-    private val coroutineScope: CoroutineScope
 ) {
-    private lateinit var service: MusicService
+    private var serverMessenger: Messenger? = null
+    private val clientMessenger = Messenger(
+        ClientIncomingHandler(
+            onSongChanged = { _currentSong.value = it }
+        )
+    )
 
     private val _isConnected = MutableStateFlow(false)
     val isConnected = _isConnected.asStateFlow()
 
-    val currentSong = isConnected
-        .flatMapLatest { isConnected ->
-            if(isConnected) {
-                service.currentSong
-            } else flowOf("-")
-        }
-        .stateIn(
-            coroutineScope,
-            SharingStarted.Lazily,
-            "-"
-        )
+    private val _currentSong = MutableStateFlow("-")
+    val currentSong = _currentSong.asStateFlow()
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as MusicService.MusicServiceBinder
-            this@MusicServiceController.service = binder.getService()
+            serverMessenger = Messenger(service)
+
+            val msg = Message.obtain(null, MusicServiceCommand.REGISTER.what)
+            msg.replyTo = clientMessenger
+            serverMessenger?.send(msg)
+
             _isConnected.value = true
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             _isConnected.value = false
+            serverMessenger = null
         }
 
         override fun onBindingDied(name: ComponentName?) {
             super.onBindingDied(name)
             _isConnected.value = false
+            serverMessenger = null
         }
     }
 
@@ -61,11 +66,43 @@ class MusicServiceController(
     }
 
     fun unbind() {
+        val msg = Message.obtain(null, MusicServiceCommand.UNREGISTER.what)
+        msg.replyTo = clientMessenger
+        serverMessenger?.send(msg)
+
         context.unbindService(serviceConnection)
         _isConnected.value = false
     }
 
-    fun next() = service.next()
+    fun next() {
+        val msg = Message.obtain(null, MusicServiceCommand.NEXT.what)
+        msg.replyTo = clientMessenger
+        serverMessenger?.send(msg)
+    }
 
-    fun previous() = service.previous()
+    fun previous() {
+        val msg = Message.obtain(null, MusicServiceCommand.PREVIOUS.what)
+        msg.replyTo = clientMessenger
+        serverMessenger?.send(msg)
+    }
+
+    class ClientIncomingHandler(
+        private val onSongChanged: (String) -> Unit
+    ): Handler(Looper.getMainLooper()) {
+
+        override fun handleMessage(msg: Message) {
+            val event = MusicServiceClientEvent.entries.find { it.what == msg.what }
+                ?: throw IllegalArgumentException("Invalid event.")
+            when(event) {
+                MusicServiceClientEvent.SONG_CHANGED -> {
+                    val songName = msg.data.getString("KEY_SONG_NAME") ?: return
+                    onSongChanged(songName)
+                }
+            }
+        }
+    }
+}
+
+enum class MusicServiceClientEvent(val what: Int) {
+    SONG_CHANGED(0)
 }

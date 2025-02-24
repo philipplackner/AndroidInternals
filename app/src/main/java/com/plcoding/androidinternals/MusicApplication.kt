@@ -14,7 +14,6 @@ class MusicApplication: Application() {
         super.onCreate()
         musicServiceController = MusicServiceController(
             context = this,
-            coroutineScope = applicationScope
         )
     }
 }
