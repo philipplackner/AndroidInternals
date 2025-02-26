@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <permission android:name="com.plcoding.ACCESS_DICTIONARY" />
+
     <application
+        android:name=".DictionaryApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.plcoding.androidinternals"
+            android:name=".DictionaryProvider"
+            android:exported="true"
+            android:permission="com.plcoding.ACCESS_DICTIONARY" />
     </application>
 
 </manifest>
