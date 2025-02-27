@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <permission android:name="com.plcoding.ACCESS_DICTIONARY" />
+    <permission
+        android:name="com.plcoding.ACCESS_DICTIONARY"
+        android:protectionLevel="signature" />
 
     <application
         android:name=".DictionaryApp"
